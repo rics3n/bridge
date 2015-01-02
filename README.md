@@ -38,13 +38,13 @@ docker run -d --name bridge \
 
 ## using mounted unix socket 
 
-(interactive mode)
+(deamon mode)
 
 ```
 docker run -d --name bridge \
   -e DOCKER_UNIX_SOCKET_PATH=/var/run/docker.sock \
   -p 8080:8080 \
-  -v /var/run/docker.sock \
+  -v /var/run/docker.sock:/var/run/docker.sock \
   magegu/bridge
 ```
 
