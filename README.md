@@ -17,6 +17,17 @@ Features include:
 
 # configuration & setup
 
+## ENV Variables
+
+to connect to your docker installation use one of the following combination:
+* **DOCKER_HOST** 
+* **DOCKER_CERT_PATH** 
+or
+* **DOCKER_UNIX_SOCKET_PATH**
+
+optional parameters:
+* **SLACK_URL** - the slack url to be called, if an event is triggered.
+
 ## using certs & external host (eg boot2docker)
 ```
 docker run -it --rm \
