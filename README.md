@@ -23,14 +23,18 @@ Features include:
 * **ADMIN_PASSWORD** - password used for authentication
 
 to connect to your docker installation use one of the following combination:
+
 * **DOCKER_HOST** 
 * **DOCKER_CERT_PATH** 
-or
-* **DOCKER_UNIX_SOCKET_PATH**
 
+or
+
+* **DOCKER_UNIX_SOCKET_PATH** - maybe together with a -v that links the unix socket into the bridge container. (note: you have the set the -H parameter in the docker config at /var/default/docker)
 
 optional parameters:
 * **SLACK_URL** - the slack url to be called, if an event is triggered.
+
+# examples
 
 ## using certs & external host (eg boot2docker)
 ```
