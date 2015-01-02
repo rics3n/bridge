@@ -17,27 +17,51 @@ Features include:
 
 # configuration & setup
 
-## interactive mode
-
+## using certs & external host (eg boot2docker)
 ```
 docker run -it --rm \
   -e DOCKER_HOST=$DOCKER_HOST \
   -e DOCKER_CERT_PATH=/cert \
   -p 8080:8080 \
   -v $DOCKER_CERT_PATH:/cert \
-  bridge
+  magege/bridge
 ```
 
-## daemon mode
-
 ```
-docker run -d --name hafenbar \
+docker run -d --name bridge \
   -e DOCKER_HOST=$DOCKER_HOST \
   -e DOCKER_CERT_PATH=/cert \
   -p 8080:8080 \
   -v $DOCKER_CERT_PATH:/cert \
-  bridge
+  magege/bridge
 ```
 
-# 
+## using mounted unix socket 
+
+(interactive mode)
+
+```
+docker run -d --name bridge \
+  -e DOCKER_UNIX_SOCKET_PATH=/var/run/docker.sock \
+  -p 8080:8080 \
+  -v /var/run/docker.sock \
+  magegu/bridge
+```
+
+(interactive mode)
+```
+docker run -it --rm \
+  -e DOCKER_UNIX_SOCKET_PATH=/var/run/docker.sock \
+  -p 8080:8080 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  magegu/bridge
+```
+
+# development
+
+build locally:
+
+```
+docker build -t magege/bridge .
+```
 
