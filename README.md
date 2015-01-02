@@ -32,22 +32,17 @@ or
 * **DOCKER_UNIX_SOCKET_PATH** - maybe together with a -v that links the unix socket into the bridge container. (note: you have the set the -H parameter in the docker config at /var/default/docker)
 
 optional parameters:
+
 * **SLACK_URL** - the slack url to be called, if an event is triggered.
 
 # examples
 
-## using certs & external host (eg boot2docker)
-```
-docker run -it --rm \
-  -e DOCKER_HOST=$DOCKER_HOST \
-  -e DOCKER_CERT_PATH=/cert \
-  -p 8080:8080 \
-  -v $DOCKER_CERT_PATH:/cert \
-  magege/bridge
-```
+## using certs & external host (eg boot2docker), deamonized
 
 ```
 docker run -d --name bridge \
+  -e ADMIN_NAME=admin \
+  -e ADMIN_PASSWORD=4dm1n \
   -e DOCKER_HOST=$DOCKER_HOST \
   -e DOCKER_CERT_PATH=/cert \
   -p 8080:8080 \
@@ -57,19 +52,10 @@ docker run -d --name bridge \
 
 ## using mounted unix socket 
 
-(deamon mode)
-
 ```
 docker run -d --name bridge \
-  -e DOCKER_UNIX_SOCKET_PATH=/var/run/docker.sock \
-  -p 8080:8080 \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  magegu/bridge
-```
-
-(interactive mode)
-```
-docker run -it --rm \
+  -e ADMIN_NAME=admin \
+  -e ADMIN_PASSWORD=4dm1n \
   -e DOCKER_UNIX_SOCKET_PATH=/var/run/docker.sock \
   -p 8080:8080 \
   -v /var/run/docker.sock:/var/run/docker.sock \
