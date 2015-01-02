@@ -19,11 +19,15 @@ Features include:
 
 ## ENV Variables
 
+* **ADMIN_NAME** - username used for authentication
+* **ADMIN_PASSWORD** - password used for authentication
+
 to connect to your docker installation use one of the following combination:
 * **DOCKER_HOST** 
 * **DOCKER_CERT_PATH** 
 or
 * **DOCKER_UNIX_SOCKET_PATH**
+
 
 optional parameters:
 * **SLACK_URL** - the slack url to be called, if an event is triggered.

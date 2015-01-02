@@ -1,5 +1,5 @@
 var express = require('express');
-var basicAuth = require('basic-auth-connect');
+var basicAuth = require('basic-auth');
 
 var request = require('request');
 var swig = require('swig');
@@ -9,13 +9,9 @@ var fs = require('fs');
 var Docker = require('dockerode');
 var logger = require('morgan');
 
-var username = 'docker'
-var password = 'cont4iner'
-
 var jsonParser = bodyParser.json();
 
 var app = express();
-//app.use(basicAuth(username, password));
 app.use(express.static(__dirname + '/public'));
 app.use(logger('tiny'));
 
@@ -23,7 +19,34 @@ app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
 app.engine('html', swig.renderFile);
 
-getDocker = function() {
+var adminUsername = process.env.ADMIN_NAME;
+var adminPassword = process.env.ADMIN_PASSWORD;
+
+if(!adminUsername || !adminPassword){
+  console.error("no ADMIN_NAME or ADMIN_PASSWORD env variable given.")
+  process.exit(1);
+}
+
+var auth = function (req, res, next) {
+  function unauthorized(res) {
+    res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
+    return res.send(401);
+  };
+
+  var user = basicAuth(req);
+
+  if (!user || !user.name || !user.pass) {
+    return unauthorized(res);
+  };
+
+  if (user.name === adminUsername && user.pass === adminPassword) {
+    return next();
+  } else {
+    return unauthorized(res);
+  };
+};
+
+var getDocker = function() {
   if(process.env.DOCKER_CERT_PATH){ 
 
     var dockerHost = process.env.DOCKER_HOST
@@ -40,7 +63,7 @@ getDocker = function() {
   }else if(process.env.DOCKER_UNIX_SOCKET_PATH){
     return new Docker({socketPath: process.env.DOCKER_UNIX_SOCKET_PATH});
   }else{
-    console.log("no docker connection settings found. please see the docs for available options.")
+    console.error("no docker connection settings found. please see the docs for available options.")
     process.exit(1);
   }
 }
@@ -56,11 +79,15 @@ docker.ping(function(err,pong) {
   }
 });
 
-app.get('/', function(req, res) {
+// interface: index
+
+app.get('/', auth, function(req, res) {
   res.render('index.html');
 });
 
-app.get('/containers', function(req, res) {
+// API: index containers 
+
+app.get('/containers', auth, function(req, res) {
   docker.listContainers( {all: true}, function (err, containers) {
     if (err) {
       res.end(err);
@@ -70,13 +97,14 @@ app.get('/containers', function(req, res) {
   });
 });
 
+// RECEIVE WEBHOOKS 
 
 app.post('/webhooks', jsonParser, function(req, res) {
   if (!req.body) 
     return res.sendStatus(400);
 
   var jsonData = req.body;
-
+  
   var callbackUrl = jsonData.callback_url;
   var callbackData = { state : 'Success' } ;
 

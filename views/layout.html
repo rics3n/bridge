@@ -2,8 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Hafenbar - {% block title %}{% endblock %}</title>
+  <title>Bridge - {% block title %}{% endblock %}</title>
   <script src="/vue.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.8/angular.min.js"></script>
   <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
   <style type="text/css">
   *{
@@ -14,8 +15,23 @@
 
   {% endblock %}
 </head>
-<body>
-  {% block content %}{% endblock %}
+<body ng-app>
+
+
+  <script type="text/javascript">
+
+  var phonecatApp = angular.module('phonecatApp', []);
+
+  phonecatApp.controller('PhoneListCtrl', function ($scope, $http) {
+    $http.get('phones/phones.json').success(function(data) {
+      $scope.phones = data;
+    });
+
+    $scope.orderProp = 'age';
+  });
+
+  </script>
+
 </body>
 </html>
 
