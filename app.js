@@ -23,17 +23,29 @@ app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
 app.engine('html', swig.renderFile);
 
+getDocker = function() {
+  if(process.env.DOCKER_CERT_PATH){ 
 
-var dockerHost = process.env.DOCKER_HOST
-var dockerCertPath = process.env.DOCKER_CERT_PATH
+    var dockerHost = process.env.DOCKER_HOST
+    var dockerCertPath = process.env.DOCKER_CERT_PATH
 
-var docker = new Docker({
-  host: "192.168.59.103",
-  port: process.env.DOCKER_PORT || 2376,
-  ca: fs.readFileSync(dockerCertPath + '/ca.pem'),
-  cert: fs.readFileSync(dockerCertPath + '/cert.pem'),
-  key: fs.readFileSync(dockerCertPath + '/key.pem')
-});
+    return new Docker({
+      host: "192.168.59.103",
+      port: process.env.DOCKER_PORT || 2376,
+      ca: fs.readFileSync(dockerCertPath + '/ca.pem'),
+      cert: fs.readFileSync(dockerCertPath + '/cert.pem'),
+      key: fs.readFileSync(dockerCertPath + '/key.pem')
+    });
+
+  }else if(process.env.DOCKER_UNIX_SOCKET_PATH){
+    return new Docker({socketPath: process.env.DOCKER_UNIX_SOCKET_PATH});
+  }else{
+    console.log("no docker connection settings found. please see the docs for available options.")
+    process.exit(1);
+  }
+}
+
+var docker = getDocker();
 
 docker.ping(function(err,pong) {
   if(err) {
