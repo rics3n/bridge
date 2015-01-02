@@ -15,19 +15,29 @@ Features include:
 * **scheduler (TBA)** - 
 * **security** - single user via HTTTP basic auth. (Note: you should always use SSL for you server. cloudflare offers free ssl!)
 
-# run modes
+# configuration & setup
 
 ## interactive mode
 
 ```
-docker run -it --rm -e DOCKER_HOST=$DOCKER_HOST -e DOCKER_CERT_PATH=/cert -p 8080:8080 -v $DOCKER_CERT_PATH:/cert  bridge
+docker run -it --rm \
+  -e DOCKER_HOST=$DOCKER_HOST \
+  -e DOCKER_CERT_PATH=/cert \
+  -p 8080:8080 \
+  -v $DOCKER_CERT_PATH:/cert \
+  bridge
 ```
 
 ## daemon mode
 
 ```
-docker run -d --name hafenbar -e DOCKER_HOST=$DOCKER_HOST -e DOCKER_CERT_PATH=/cert -p 8080:8080 -v $DOCKER_CERT_PATH:/cert  bridge
+docker run -d --name hafenbar \
+  -e DOCKER_HOST=$DOCKER_HOST \
+  -e DOCKER_CERT_PATH=/cert \
+  -p 8080:8080 \
+  -v $DOCKER_CERT_PATH:/cert \
+  bridge
 ```
 
-# configuration
+# 
 
