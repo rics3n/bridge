@@ -1,75 +1,114 @@
 <!doctype html>
 <html ng-app="bridgeApp">
-<head>
-  <meta charset="utf-8">
-  <title>Bridge - {% block title %}{% endblock %}</title>
-  <script src="/vue.min.js"></script>
+  <head>
+    <meta charset="utf-8">
+    <title>Bridge - Index</title>
+    <script src="/vue.min.js"></script>
 
-  <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.8/angular.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.8/angular.min.js"></script>
 
-  <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
-  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 
-  <style type="text/css">
-  *{
-    font-family: 'Roboto', sans-serif;
-  }
-  </style>
-  {% block head %}
+    <style type="text/css">
+    *{
+      font-family: 'Roboto', sans-serif;
+    }
+    </style>
+    {% block head %}
 
-  {% endblock %}
-</head>
+    {% endblock %}
+  </head>
 
-
-<body ng-controller="ContainerCtrl">
-{{test}}
-
-  <ul>
-    <li ng-repeat="c in containers">
+  <body ng-controller="ContainerCtrl">
+    <table class="table table-striped">
       
-      <p>[[c.Status]] [[c.Names]] [[c.Image]] [[c.Created*1000 | date : 'M/d/yy h:mm a']]
-        <button ng-click="pullImage(c)" class="btn btn-sm btn-primary">pull image</button>
-        <button ng-click="removeContainer(c)" class="btn btn-sm btn-danger">remove container</button>
+      <tr>
+        <th>Id</th>
+        <th>Status</th>
+        <th>Names</th>
+        <th>Image</th>
+        <th>Created</th>
+        <th></th>
+      </tr>
 
-      </p>
+      <tr ng-repeat="c in containers" ng-class="{ success: (c.Status.indexOf('Up') > -1), danger: (c.Status.indexOf('Exited') > -1), warning: c.Status == '' }">
 
-    </li>
-  </ul>
+        <td>[[c.Id.substring(0,12)]]</td>
+        <td>[[c.Status]]</td>
+        <td>
+          <span class="label label-info" ng-repeat="name in c.Names">[[name]]<br/></span>
 
-  <script type="text/javascript">
+        </td>
+        <td>[[c.Image]]</td>
+        <td>[[c.Created*1000 | date : 'M/d/yy h:mm a']]</td>
+        <td>
+          <span ng-click="inspectContainer(c)" class="btn btn-sm btn-primary"><i class="fa fa-info"></i></span>
+          <span ng-click="startContainer(c)" class="btn btn-sm btn-primary"><i class="fa fa-play"></i></span>
+          <span ng-click="pullImage(c)" class="btn btn-sm btn-primary"><i class="fa fa-download"></i></span>
+          <span ng-click="removeContainer(c)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
+        </td>
+      </tr>
+    </table>
 
-  var phonecatApp = angular.module('bridgeApp', [], function ($interpolateProvider) {
-    $interpolateProvider.startSymbol('[[');
-    $interpolateProvider.endSymbol(']]');
-  });
+    [[inspected_container]]
 
-  phonecatApp.controller('ContainerCtrl', function ($scope, $http) {
-    $scope.pullImage = function(container){  
-      $http.get('containers/'+ container.Id +'/pull').success(function(data) {
-      }).error(function(data, status, headers, config) {
-        console.error(data, status, headers, config);
-      });
-    };
+    <script type="text/javascript">
 
-    $scope.removeContainer = function(container){  
-      $http.delete('containers/'+ container.Id).success(function(data) {
-        $scope.containers = $scope.containers.filter(function(c) {
-          return c.Id !== container.Id;
-        });
-      }).error(function(data, status, headers, config) {
-        console.error(data, status, headers, config);
-      });
-    };
-
-    $http.get('containers').success(function(data) {
-      $scope.containers = data;
+    var phonecatApp = angular.module('bridgeApp', [], function ($interpolateProvider) {
+      $interpolateProvider.startSymbol('[[');
+      $interpolateProvider.endSymbol(']]');
     });
-  });
 
-  </script>
+    phonecatApp.controller('ContainerCtrl', function ($scope, $http) {
+      $scope.inspectContainer = function(container){  
+        $http.get('containers/'+ container.Id +'/inspect').success(function(data) {
+          $scope.inspected_container = data;
+        }).error(function(data, status, headers, config) {
+          console.error(data, status, headers, config);
+        });
+      };
 
-</body>
+
+      $scope.pullImage = function(container){  
+        $http.get('containers/'+ container.Id +'/pull').success(function(data) {
+        }).error(function(data, status, headers, config) {
+          console.error(data, status, headers, config);
+        });
+      };
+
+      $scope.startContainer = function(container){  
+        $http.get('containers/'+ container.Id + "/start").success(function(data) {
+          $scope.containers = $scope.containers.filter(function(c) {
+            if(c.Id !== container.Id){
+
+            }
+          });
+        }).error(function(data, status, headers, config) {
+          console.error(data, status, headers, config);
+        });
+      };
+
+      $scope.removeContainer = function(container){  
+        $http.delete('containers/'+ container.Id).success(function(data) {
+          $scope.containers = $scope.containers.filter(function(c) {
+            return c.Id !== container.Id;
+          });
+        }).error(function(data, status, headers, config) {
+          console.error(data, status, headers, config);
+        });
+      };
+
+      $http.get('containers').success(function(data) {
+        $scope.containers = data;
+      });
+    });
+
+    </script>
+
+  </body>
 </html>
 

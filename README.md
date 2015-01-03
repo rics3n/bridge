@@ -9,11 +9,14 @@ Why `bridge` is different from other docker mangement tools.
 * **integrated** - `bridge` integrates with services like the docker registry, slack, email etc too 
 * **batteries included** - `bridge` targets users that have common docker tasks in ther minds: pull, restart, schedule a docker run etc.
 
-Features include:
+## Features in development:
 
-* **container management** - pull & run containers with all required parameters like volumes, ports, links etc.
-* **scheduler (TBA)** - 
+* **container management** - pull & run containers with all required parameters like volumes, ports, links etc. this is 
 * **security** - single user via HTTTP basic auth. (Note: you should always use SSL for you server. cloudflare offers free ssl!)
+
+## Features that will be included later
+
+* **scheduler** - cronjob like scheduler for running containers.
 
 # configuration & setup
 
@@ -63,6 +66,8 @@ docker run -d --name bridge \
 ```
 
 # development
+
+run server with [nodemon](https://github.com/remy/nodemon)
 
 build locally:
 

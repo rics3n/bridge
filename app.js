@@ -103,9 +103,21 @@ app.delete('/containers/:id', auth, function(req, res) {
       res.end(JSON.stringify(err));
       return;
     }
-    
+
     res.sendStatus(204);
     res.end("removed");
+  });
+});
+
+app.get('/containers/:id/start', auth, function(req, res) {
+  var c = docker.getContainer(req.params.id)
+  c.start(function (err, c) {
+    if (err) {
+      res.end(JSON.stringify(err));
+      return;
+    }
+    res.sendStatus(204);
+    res.end("started");
   });
 });
 
