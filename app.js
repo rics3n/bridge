@@ -112,12 +112,18 @@ app.post('/containers', jsonParser, function(req, res) {
     var startOptions = {};
 
     docker.run(data.image_name, "bash", function(stream){
-
+      stream.on('data', function(chunk) {
+        console.log(chunk);
+      });
     }, createOptions, startOptions, function(err, container){
-
+      if (err) {
+        res.end(JSON.stringify(err));
+        return;
+      }
+      res.sendStatus(200);
+      res.end(JSON.stringify(container));
     });
 
-    res.end();
   });
 });
 

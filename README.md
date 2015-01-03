@@ -72,10 +72,14 @@ docker run -d --name bridge \
 
 run server with [nodemon](https://github.com/remy/nodemon)
 
+```
+nodemon app.js -e js,html
+```
+
 build locally:
 
 ```
-docker build -t magege/bridge .
+docker build -t magegu/bridge .
 ```
 
 # based on
