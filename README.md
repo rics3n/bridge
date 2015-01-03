@@ -76,3 +76,9 @@ build locally:
 docker build -t magege/bridge .
 ```
 
+# based on
+
+* [dockerode](https://github.com/apocas/dockerode) - an awesome docker node.js library
+* [express](https://github.com/strongloop/express) - node.js web framework
+* lots of other libraries
+
