@@ -1,10 +1,10 @@
 # bridge
 
-**Bridge is a simple, web based docker manging app based on node.js. It's main goal is to wrap the docker API/CLI into a simple webinteface.** 
+**Bridge is a simple, web based docker manging app based on node.js. It's main goal is to wrap the docker API/CLI into a simple webinterface.** 
 
 Why `bridge` is different from other docker mangement tools.
 
-* **simple** - `bridge` aims to be a convenience wrapper of the docker api for the web
+* **simple** - `bridge` aims to be a very simple convenience wrapper of the docker api for the web
 * **single node** - `bridge` is made to manage a single docker daemon, not cluster (this might come in the future)
 * **integrated** - `bridge` integrates with services like the docker registry, slack, email etc too 
 * **batteries included** - `bridge` targets users that have common docker tasks in ther minds: pull, restart, schedule a docker run etc.
