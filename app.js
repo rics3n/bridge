@@ -97,6 +97,30 @@ app.get('/containers', auth, function(req, res) {
   });
 });
 
+app.post('/containers', jsonParser, function(req, res) {
+  docker.listContainers( {all: true}, function (err, containers) {
+    if (err) {
+      res.end(err);
+      return;
+    }
+    
+    console.log(req);
+
+    var data = req.body
+    
+    var createOptions = {};
+    var startOptions = {};
+
+    docker.run(data.image_name, "bash", function(stream){
+
+    }, createOptions, startOptions, function(err, container){
+
+    });
+
+    res.end();
+  });
+});
+
 app.delete('/containers/:id', auth, function(req, res) {
   docker.getContainer(req.params.id).remove(function(err, c) {
     if (err) {
@@ -120,6 +144,19 @@ app.get('/containers/:id/start', auth, function(req, res) {
     res.end("started");
   });
 });
+
+
+app.get('/containers/:id/inspect', auth, function(req, res) {
+  var c = docker.getContainer(req.params.id)
+  c.inspect(function (err, c) {
+    if (err) {
+      res.end(JSON.stringify(err));
+      return;
+    }
+    res.end(JSON.stringify(c));
+  });
+});
+
 
 app.get('/containers/:id/pull', auth, function(req, res) {
 
@@ -171,6 +208,10 @@ app.post('/webhooks', jsonParser, function(req, res) {
       return console.error('[registry] upload failed:', err);
     }
     console.log('[registry] success callback called:' + callbackUrl);
+  });
+
+  docker.pull('myrepo/myname:tag', function (err, stream) {  
+
   });
 
   if(process.env.SLACK_URL){

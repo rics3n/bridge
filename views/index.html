@@ -24,6 +24,19 @@
   </head>
 
   <body ng-controller="ContainerCtrl">
+
+    <form class="form-inline">
+      <div class="form-group">
+        <input type="text" ng-model="image_namae"  class="form-control" id="image" placeholder="Image Name">
+      </div>
+
+      <div class="form-group">
+        <input type="text" ng-model="container_name" class="form-control" id="name" placeholder="Enter Container Name">
+      </div>
+
+      <button ng-click="runContainer(image_namae, container_name);" class="btn btn-warning">run</button>
+    </form>
+
     <table class="table table-striped">
       
       <tr>
@@ -64,6 +77,21 @@
     });
 
     phonecatApp.controller('ContainerCtrl', function ($scope, $http) {
+
+      $scope.runContainer = function(imageName, containerName){
+
+        var data = { image_name :imageName, container_name:containerName}
+
+        $http.post('containers', data).success(function(container) {
+          
+          $scope.containers.push(container);
+
+        }).error(function(data, status, headers, config) {
+          console.error(data, status, headers, config);
+        });
+
+      };
+
       $scope.inspectContainer = function(container){  
         $http.get('containers/'+ container.Id +'/inspect').success(function(data) {
           $scope.inspected_container = data;
