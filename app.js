@@ -282,9 +282,11 @@ app.post('/webhooks', jsonParser, function(req, res) {
     console.log('[registry] success callback called:' + callbackUrl);
   });
 
-  docker.pull('myrepo/myname:tag', function (err, stream) {  
+  console.log(jsonData);
+  
+  // docker.pull('myrepo/myname:tag', function (err, stream) {  
 
-  });
+  // });
 
   if(process.env.SLACK_URL){
     var slackMsg = 'new image pushed in ' + jsonData.repository.repo_name;
