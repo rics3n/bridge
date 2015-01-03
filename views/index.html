@@ -4,8 +4,14 @@
   <meta charset="utf-8">
   <title>Bridge - {% block title %}{% endblock %}</title>
   <script src="/vue.min.js"></script>
+
+  <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.8/angular.min.js"></script>
+
   <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+
   <style type="text/css">
   *{
     font-family: 'Roboto', sans-serif;
@@ -15,11 +21,20 @@
 
   {% endblock %}
 </head>
+
+
 <body ng-controller="ContainerCtrl">
 {{test}}
- <ul>
+
+  <ul>
     <li ng-repeat="c in containers">
-      <p>[[c.Names]] [[c.Image]] [[c.Created*1000 | date : 'M/d/yy h:mm a']]</p>
+      
+      <p>[[c.Status]] [[c.Names]] [[c.Image]] [[c.Created*1000 | date : 'M/d/yy h:mm a']]
+        <button ng-click="pullImage(c)" class="btn btn-sm btn-primary">pull image</button>
+        <button ng-click="removeContainer(c)" class="btn btn-sm btn-danger">remove container</button>
+
+      </p>
+
     </li>
   </ul>
 
@@ -31,6 +46,23 @@
   });
 
   phonecatApp.controller('ContainerCtrl', function ($scope, $http) {
+    $scope.pullImage = function(container){  
+      $http.get('containers/'+ container.Id +'/pull').success(function(data) {
+      }).error(function(data, status, headers, config) {
+        console.error(data, status, headers, config);
+      });
+    };
+
+    $scope.removeContainer = function(container){  
+      $http.delete('containers/'+ container.Id).success(function(data) {
+        $scope.containers = $scope.containers.filter(function(c) {
+          return c.Id !== container.Id;
+        });
+      }).error(function(data, status, headers, config) {
+        console.error(data, status, headers, config);
+      });
+    };
+
     $http.get('containers').success(function(data) {
       $scope.containers = data;
     });

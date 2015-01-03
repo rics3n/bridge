@@ -97,6 +97,52 @@ app.get('/containers', auth, function(req, res) {
   });
 });
 
+app.delete('/containers/:id', auth, function(req, res) {
+  docker.getContainer(req.params.id).remove(function(err, c) {
+    if (err) {
+      res.end(JSON.stringify(err));
+      return;
+    }
+    
+    res.sendStatus(204);
+    res.end("removed");
+  });
+});
+
+app.get('/containers/:id/pull', auth, function(req, res) {
+
+  var c = docker.getContainer(req.params.id)
+  c.inspect(function (err, c) {
+    if (err) {
+      res.end(JSON.stringify(err));
+      return;
+    }
+
+    var image = c.Image
+
+    docker.pull(image, function(err, stream) {
+      if (err) {
+        res.end(JSON.stringify(err));
+        return;
+      }
+
+      if(stream) {
+        stream.on('data', function(chunk) {
+          console.log('got %d bytes of data', chunk.length);
+          res.write(chunk);
+        });
+
+        stream.on('end', function() {
+          res.end("found");
+        });            
+      }
+
+    });
+
+  });
+
+});
+
 // RECEIVE WEBHOOKS 
 
 app.post('/webhooks', jsonParser, function(req, res) {
