@@ -2,6 +2,7 @@
 
 **Bridge is a simple, web based docker manging app based on node.js. It's main goal is to wrap the docker API/CLI into a simple webinterface.** 
 
+![Bridge](http://justinsomnia.org/images/cap-cleveland-bridge-view-moon-lit-big.jpg)
 Why `bridge` is different from other docker mangement tools.
 
 * **simple** - `bridge` aims to be a very simple convenience wrapper of the docker api for the web
