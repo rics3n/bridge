@@ -1,17 +1,17 @@
 var express = require('express');
+var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 var basicAuth = require('basic-auth');
-
 var request = require('request');
 var swig = require('swig');
 var bodyParser = require('body-parser')
-
 var fs = require('fs');
 var Docker = require('dockerode');
 var logger = require('morgan');
 
 var jsonParser = bodyParser.json();
 
-var app = express();
 app.use(express.static(__dirname + '/public'));
 app.use(logger('tiny'));
 
@@ -85,7 +85,50 @@ app.get('/', auth, function(req, res) {
   res.render('index.html');
 });
 
-// API: index containers 
+// IMAGES
+
+app.get('/images', auth, function(req, res) {
+  docker.listImages( {all: true}, function (err, images) {
+    if (err) {
+      res.end(err);
+      return;
+    }
+    res.end(JSON.stringify(images));
+  });
+});
+
+app.get('/images/pull', jsonParser, function(req, res) {
+  var imageName = req.query.imageName;
+  console.log("pull image: " + imageName);
+
+  docker.pull(imageName, function (err, stream, test) {
+    if (err) {
+      res.end(err);
+      return;
+    }
+
+    stream.on('data', function(chunk){
+      res.write(chunk);
+    });
+
+    stream.on('end', function(chunk){
+      res.end(JSON.stringify({}));
+    });
+
+  });
+});
+
+app.delete('/images/:id', auth, function(req, res) {
+  docker.getImage(req.params.id).remove(function(err, c) {
+    if (err) {
+      res.status(400).end(JSON.stringify(err));
+      return;
+    }
+    res.status(204).end("removed");
+  });
+});
+
+// CONTAINERS
 
 app.get('/containers', auth, function(req, res) {
   docker.listContainers( {all: true}, function (err, containers) {
@@ -97,6 +140,7 @@ app.get('/containers', auth, function(req, res) {
   });
 });
 
+
 app.post('/containers', jsonParser, function(req, res) {
   docker.listContainers( {all: true}, function (err, containers) {
     if (err) {
@@ -104,24 +148,17 @@ app.post('/containers', jsonParser, function(req, res) {
       return;
     }
     
-    console.log(req);
-
     var data = req.body
     
     var createOptions = {};
     var startOptions = {};
 
-    docker.run(data.image_name, "bash", function(stream){
-      stream.on('data', function(chunk) {
-        console.log(chunk);
-      });
-    }, createOptions, startOptions, function(err, container){
+    docker.run(data.image_name, null , process.stdout, createOptions, startOptions, function(err, container){
       if (err) {
-        res.end(JSON.stringify(err));
+        res.status(400).end(JSON.stringify(err));
         return;
       }
-      res.sendStatus(200);
-      res.end(JSON.stringify(container));
+      res.status(200).end(JSON.stringify(container));
     });
 
   });
@@ -148,6 +185,19 @@ app.get('/containers/:id/start', auth, function(req, res) {
     }
     res.sendStatus(204);
     res.end("started");
+  });
+});
+
+
+app.get('/containers/:id/stop', auth, function(req, res) {
+  var c = docker.getContainer(req.params.id)
+  c.stop(function (err, c) {
+    if (err) {
+      res.end(JSON.stringify(err));
+      return;
+    }
+    res.sendStatus(204);
+    res.end(JSON.stringify(c));
   });
 });
 
@@ -198,6 +248,22 @@ app.get('/containers/:id/pull', auth, function(req, res) {
 
 });
 
+// websockets
+
+io.on('connection', function (socket) {
+  socket.emit('news', { hello: 'world' });
+  
+  //sockets.push(socket);
+
+  socket.on('message', function (msg) { 
+    console.log("[WEBSOCKETS]", message);
+  });
+
+  socket.on('disconnect', function () {
+    io.sockets.emit('user disconnected');
+  });
+});
+
 // RECEIVE WEBHOOKS 
 
 app.post('/webhooks', jsonParser, function(req, res) {
@@ -238,4 +304,4 @@ app.post('/webhooks', jsonParser, function(req, res) {
   res.end("OK");
 });
 
-app.listen(8080);
+server.listen(8080);

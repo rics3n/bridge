@@ -85,7 +85,8 @@ docker build -t magegu/bridge .
 # based on
 
 * [dockerode](https://github.com/apocas/dockerode) - an awesome docker node.js library
-* [express](https://github.com/strongloop/express) - node.js web framework
-* lots of other libraries
+* [express](https://github.com/strongloop/express) - node.js web application framework
+* [angular](https://angularjs.org/) - angular.js frontend framework
+* lots of other libraries :)
 
 [container image source](http://justinsomnia.org/2010/09/moonlit-containers/)
