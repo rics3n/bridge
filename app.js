@@ -283,10 +283,30 @@ app.post('/webhooks', jsonParser, function(req, res) {
   });
 
   console.log(jsonData);
-  
-  // docker.pull('myrepo/myname:tag', function (err, stream) {  
 
-  // });
+  console.log("[autopull] starting");
+  
+  var tag = "latest"
+  var repo = jsonData.repository.repo_name
+  docker.pull( repo + ":" + tag, function (err, stream) {  
+
+    if (err) {
+      res.end(JSON.stringify(err));
+      return;
+    }
+
+    if(stream) {
+      stream.on('data', function(chunk) {
+        console.log('[autopull]['+repo+'] got %d bytes of data', chunk.length);
+      });
+
+      stream.on('end', function() {
+        console.log('[autopull]['+repo+'] image pulled')
+      });            
+    }
+
+  });
+
 
   if(process.env.SLACK_URL){
     var slackMsg = 'new image pushed in ' + jsonData.repository.repo_name;

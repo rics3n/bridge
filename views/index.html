@@ -90,6 +90,7 @@
         <td>[[image.Id]]</td>
         <td>
           <span ng-click="removeImage(image)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
+          <span ng-click="pullImage(image)" class="btn btn-sm btn-primary"><i class="fa fa-download"></i></span>
         </td>
       </tr>
     </table>
@@ -108,18 +109,14 @@
 
     phonecatApp.controller('ContainerCtrl', function ($scope, $http) {
 
+      // CONTAINER STUFF
       $scope.runContainer = function(imageName, containerName){
-
         var data = { image_name :imageName, container_name:containerName}
-
         $http.post('containers', data).success(function(container) {
-          
           $scope.containers.push(container);
-
         }).error(function(data, status, headers, config) {
           console.error(data, status, headers, config);
         });
-
       };
 
       $scope.inspectContainer = function(container){  
@@ -127,25 +124,6 @@
           $scope.inspected_container = data;
         }).error(function(data, status, headers, config) {
           console.error(data, status, headers, config);
-        });
-      };
-
-
-      $scope.pullImage = function(imageName){  
-        $scope.pulling = true;
-        var imageName = encodeURIComponent(imageName);
-
-        $http.get('images/pull?imageName='+imageName).success(function(image) {
-          
-          alert("image pulled");
-
-          $scope.pulling = false;
-
-        }).error(function(data, status, headers, config) {
-
-          console.error(data, status, headers, config);
-          $scope.pulling = false;
-
         });
       };
 
@@ -157,7 +135,6 @@
         });
       };
 
-
       $scope.stopContainer = function(container){  
         $http.get('containers/'+ container.Id + "/stop").success(function(data) {
           alert("stopped");
@@ -165,7 +142,6 @@
           console.error(data, status, headers, config);
         });
       };
-
 
       $scope.removeContainer = function(container){  
         $http.delete('containers/'+ container.Id).success(function(data) {
@@ -177,6 +153,18 @@
         });
       };
 
+      // IMAGE STUFF
+      $scope.pullImage = function(imageName){  
+        $scope.pulling = true;
+        var imageName = encodeURIComponent(imageName);
+        $http.get('images/pull?imageName='+imageName).success(function(image) {
+          alert("image pulled");
+          $scope.pulling = false;
+        }).error(function(data, status, headers, config) {
+          console.error(data, status, headers, config);
+          $scope.pulling = false;
+        });
+      };
 
       $scope.removeImage = function(image){  
         $http.delete('images/'+ image.Id).success(function(data) {
@@ -195,6 +183,9 @@
         };
       }
 
+
+      //loaders
+      
       $http.get('containers').success(function(data) {
         $scope.containers = data;
       });
