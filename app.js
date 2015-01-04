@@ -233,7 +233,7 @@ app.get('/containers/:id/logs', auth, function(req, res) {
     stream.setEncoding('utf8');
     stream.on('data', function(chunk){
 
-      console.log(chunk.length);
+      //console.log(chunk.length);
 
       if(chunk.length > 8){
         var log = "["+req.params.id+"]" + chunk;
