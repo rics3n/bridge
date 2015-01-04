@@ -2,15 +2,20 @@
 <html ng-app="bridgeApp">
   <head>
     <meta charset="utf-8">
-    <title>Bridge - Index</title>
-    <script src="/vue.min.js"></script>
+    <title>Bridge</title>
 
-    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.8/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-route.min.js"></script>
+
+    <script src="/js/app.js"></script>
+
+    <script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.8/angular.min.js"></script>
-    <script src="https://cdn.socket.io/socket.io-1.2.1.js"></script>
 
-    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <script src="//cdn.socket.io/socket.io-1.2.1.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+
+    <link href='//fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 
@@ -18,200 +23,43 @@
     *{
       font-family: 'Roboto', sans-serif;
     }
+    body {
+      padding-top: 20px;
+    }
     </style>
     {% block head %}
 
     {% endblock %}
   </head>
 
-  <body ng-controller="ContainerCtrl">
+  <body ng-controller="MainController">
 
-    <form class="form-inline">
-      <div class="form-group">
-        <input type="text" ng-model="new_image_name" class="form-control" id="name" placeholder="Image Name">
-      </div>
-
-      <span ng-click="pullImage(new_image_name);" ng-disabled="pulling" class="btn btn-warning">
-        <span ng-if="!pulling">pull</span>
-        <span  ng-if="pulling">pulling...</span>
-      </span>
-    </form>
-
-
-    <form class="form-inline">
-      <div class="form-group">
-        <select ng-model="selected_image" class="form-control" ng-options="image.RepoTags for image in images | filter:checkImage()">
-        </select> 
-      </div>
-
-      <div class="form-group">
-        <input type="text" ng-model="container_name" class="form-control" id="name" placeholder="Enter Container Name">
-      </div>
-
-      <button ng-click="runContainer(selected_image.RepoTags[0], container_name);" class="btn btn-warning">run</button>
-    </form>
-
-    <table class="table table-striped">
+    <div class="container">
+      <base href="/">
+      <ul class="nav nav-tabs">
+        <li ng-class="{active: $location.path() == '/containers'}"><a href="/">Container</a></li>
+        <li ng-class="{active: $location.path() == '/images'}"><a href="images">Images</a></li>
+        <li ng-class="{active: $location.path() == '/drafts'}"><a href="drafts">Drafts</a></li>
+<!--         <li ng-class="{active: $location.path() == '/scheduler'}"><a href="scheduler">Scheduler</a></li>
+ -->      </ul>
       
-      <tr>
-        <th>Id</th>
-        <th>Status</th>
-        <th>Names</th>
-        <th>Image</th>
-        <th>Created</th>
-        <th></th>
-      </tr>
+      <br> 
+      
+     <!--  <pre>$location.path() = [[$location.path()]]</pre>
+      <pre>$route.current.templateUrl = [[$route.current.templateUrl]]</pre>
+      <pre>$route.current.params = [[$route.current.params]]</pre>
+      <pre>$route.current.scope.name = [[$route.current.scope.name]]</pre>
+      <pre>$routeParams = [[$routeParams]]</pre>
+ -->
+      <div ng-view></div>
 
-      <tr ng-repeat="c in containers" ng-class="{ success: (c.Status.indexOf('Up') > -1), danger: (c.Status.indexOf('Exited') > -1), warning: c.Status == '' }">
-
-        <td>[[c.Id.substring(0,12)]]</td>
-        <td>[[c.Status]]</td>
-        <td>
-          <span class="label label-info" ng-repeat="name in c.Names">[[name]]<br/></span>
-
-        </td>
-        <td>[[c.Image]]</td>
-        <td>[[c.Created*1000 | date : 'M/d/yy h:mm a']]</td>
-        <td>
-          <span ng-click="requestContainerLogs(c)" class="btn btn-sm btn-primary">logs</span>
-          <span ng-click="inspectContainer(c)" class="btn btn-sm btn-primary"><i class="fa fa-info"></i></span>
-          <span ng-click="startContainer(c)" class="btn btn-sm btn-primary"><i class="fa fa-play"></i></span>
-          <span ng-click="stopContainer(c)" class="btn btn-sm btn-primary"><i class="fa fa-stop"></i></span>
-          <span ng-click="pullImage(c.Image)" class="btn btn-sm btn-primary"><i class="fa fa-download"></i></span>
-          <span ng-click="removeContainer(c)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
-        </td>
-      </tr>
-    </table>
-
-    [[inspected_container]]
-
-    <table class="table table-striped">
-      <tr ng-repeat="image in images | filter:checkImage()">
-        <td>[[image.RepoTags]]</td>
-        <td>[[image.Id]]</td>
-        <td>
-          <span ng-click="removeImage(image)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
-          <span ng-click="pullImage(image.RepoTags[0])" class="btn btn-sm btn-primary"><i class="fa fa-download"></i></span>
-        </td>
-      </tr>
-    </table>
-
-    <script type="text/javascript">
-
-    var socket = io.connect(window.location.protocol + '//' + window.location.host);
-
-    socket.on('news', function (data) {
-      console.log(data);
-    });
-
-    var phonecatApp = angular.module('bridgeApp', [], function ($interpolateProvider) {
-      $interpolateProvider.startSymbol('[[');
-      $interpolateProvider.endSymbol(']]');
-    });
-
-    phonecatApp.controller('ContainerCtrl', function ($scope, $http) {
-
-      // CONTAINER STUFF
-      $scope.runContainer = function(imageName, containerName){
-        var data = { image_name :imageName, container_name:containerName}
-        $http.post('containers', data).success(function(container) {
-          $scope.containers.push(container);
-        }).error(function(data, status, headers, config) {
-          console.error(data, status, headers, config);
+      <script type="text/javascript">
+        var socket = io.connect(window.location.protocol + '//' + window.location.host);
+        socket.on('news', function (data) {
+          console.log(data);
         });
-      };
-
-      $scope.inspectContainer = function(container){  
-        $http.get('containers/'+ container.Id +'/inspect').success(function(data) {
-          $scope.inspected_container = data;
-        }).error(function(data, status, headers, config) {
-          console.error(data, status, headers, config);
-        });
-      };
-
-      $scope.requestContainerLogs = function(container){  
-        $http.get('containers/'+ container.Id +'/logs').success(function(data) {
-
-          alert("ok");
-
-        }).error(function(data, status, headers, config) {
-          console.error(data, status, headers, config);
-        });
-      };
-
-
-      $scope.startContainer = function(container){  
-        $http.get('containers/'+ container.Id + "/start").success(function(data) {
-          alert("started");
-        }).error(function(data, status, headers, config) {
-          console.error(data, status, headers, config);
-        });
-      };
-
-      $scope.stopContainer = function(container){  
-        $http.get('containers/'+ container.Id + "/stop").success(function(data) {
-          alert("stopped");
-        }).error(function(data, status, headers, config) {
-          console.error(data, status, headers, config);
-        });
-      };
-
-      $scope.removeContainer = function(container){  
-        $http.delete('containers/'+ container.Id).success(function(data) {
-          $scope.containers = $scope.containers.filter(function(c) {
-            return c.Id !== container.Id;
-          });
-        }).error(function(data, status, headers, config) {
-          console.error(data, status, headers, config);
-        });
-      };
-
-      // IMAGE STUFF
-      $scope.pullImage = function(imageName){  
-        $scope.pulling = true;
-        var imageName = encodeURIComponent(imageName);
-        $http.get('images/pull?imageName='+imageName).success(function(image) {
-          alert("image pulled");
-          $scope.pulling = false;
-        }).error(function(data, status, headers, config) {
-          console.error(data, status, headers, config);
-          $scope.pulling = false;
-        });
-      };
-
-      $scope.removeImage = function(image){  
-        $http.delete('images/'+ image.Id).success(function(data) {
-          $scope.images = $scope.images.filter(function(c) {
-            return c.Id !== image.Id;
-          });
-        }).error(function(data, status, headers, config) {
-          alert(data.reason + ":" + data.json);
-          console.error(data, status, headers, config);
-        });
-      };
-
-      $scope.checkImage = function(criteria){
-        return function( image ) {
-          return image.RepoTags[0] !== "<none>:<none>";
-        };
-      }
-
-
-      //loaders
-
-      $http.get('containers').success(function(data) {
-        $scope.containers = data;
-      });
-
-      $http.get('images').success(function(data) {
-        $scope.images = data;
-      });
-
-    });
-
-
-    </script>
-
+      </script>
+    </div>
   </body>
 </html>
 

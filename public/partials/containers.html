@@ -1,0 +1,52 @@
+<div  ng-controller="ContainersCtrl">
+  <form class="form-inline">
+    <div class="form-group">
+      <select ng-model="selected_image" class="form-control" ng-options="image.RepoTags for image in images | filter:checkImage()">
+      </select> 
+    </div>
+
+    <div class="form-group">
+      <input type="text" ng-model="container_name" class="form-control" id="name" placeholder="Container Name">
+    </div>
+    
+    <div class="form-group">
+      <input type="text" ng-model="cmd" class="form-control" id="name" placeholder="Cmd">
+    </div>
+
+    <button ng-click="runContainer(selected_image.RepoTags[0], container_name);" class="btn btn-warning">run</button>
+  </form>
+
+  <table class="table table-striped">
+    
+    <tr>
+      <th>Id</th>
+      <th>Status</th>
+      <th>Names</th>
+      <th>Image</th>
+      <th>Created</th>
+      <th></th>
+    </tr>
+
+    <tr ng-repeat="c in containers" ng-class="{ success: (c.Status.indexOf('Up') > -1), danger: (c.Status.indexOf('Exited') > -1), warning: c.Status == '' }">
+
+      <td>[[c.Id.substring(0,12)]]</td>
+      <td>[[c.Status]]</td>
+      <td>
+        <span class="label label-info" ng-repeat="name in c.Names">[[name]]<br/></span>
+
+      </td>
+      <td>[[c.Image]]</td>
+      <td>[[c.Created*1000 | date : 'M/d/yy h:mm a']]</td>
+      <td>
+        <span ng-click="requestContainerLogs(c)" class="btn btn-sm btn-primary">logs</span>
+        <span ng-click="inspectContainer(c)" class="btn btn-sm btn-primary"><i class="fa fa-info"></i></span>
+        <span ng-click="startContainer(c)" class="btn btn-sm btn-primary"><i class="fa fa-play"></i></span>
+        <span ng-click="stopContainer(c)" class="btn btn-sm btn-primary"><i class="fa fa-stop"></i></span>
+        <span ng-click="pullImage(c.Image)" class="btn btn-sm btn-primary"><i class="fa fa-download"></i></span>
+        <span ng-click="removeContainer(c)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
+      </td>
+    </tr>
+  </table>
+
+  [[inspected_container]]
+</div>

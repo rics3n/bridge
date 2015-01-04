@@ -1,0 +1,23 @@
+<div  ng-controller="ImagesCtrl">
+  <form class="form-inline">
+    <div class="form-group">
+      <input type="text" ng-model="new_image_name" class="form-control" id="name" placeholder="Image Name">
+    </div>
+
+    <span ng-click="pullImage(new_image_name);" ng-disabled="pulling" class="btn btn-warning">
+      <span ng-if="!pulling">pull</span>
+      <span  ng-if="pulling">pulling...</span>
+    </span>
+  </form>
+
+  <table class="table table-striped">
+    <tr ng-repeat="image in images | filter:checkImage()">
+      <td>[[image.RepoTags]]</td>
+      <td>[[image.Id]]</td>
+      <td>
+        <span ng-click="removeImage(image)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
+        <span ng-click="pullImage(image.RepoTags[0])" class="btn btn-sm btn-primary"><i class="fa fa-download"></i></span>
+      </td>
+    </tr>
+  </table>
+</div>
