@@ -73,6 +73,7 @@
         <td>[[c.Image]]</td>
         <td>[[c.Created*1000 | date : 'M/d/yy h:mm a']]</td>
         <td>
+          <span ng-click="requestContainerLogs(c)" class="btn btn-sm btn-primary">logs</span>
           <span ng-click="inspectContainer(c)" class="btn btn-sm btn-primary"><i class="fa fa-info"></i></span>
           <span ng-click="startContainer(c)" class="btn btn-sm btn-primary"><i class="fa fa-play"></i></span>
           <span ng-click="stopContainer(c)" class="btn btn-sm btn-primary"><i class="fa fa-stop"></i></span>
@@ -90,7 +91,7 @@
         <td>[[image.Id]]</td>
         <td>
           <span ng-click="removeImage(image)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
-          <span ng-click="pullImage(image)" class="btn btn-sm btn-primary"><i class="fa fa-download"></i></span>
+          <span ng-click="pullImage(image.RepoTags[0])" class="btn btn-sm btn-primary"><i class="fa fa-download"></i></span>
         </td>
       </tr>
     </table>
@@ -98,8 +99,9 @@
     <script type="text/javascript">
 
     var socket = io.connect('http://localhost:8080');
+    
     socket.on('news', function (data) {
-      socket.emit('my other event', { my: 'data' });
+      console.log(data);
     });
 
     var phonecatApp = angular.module('bridgeApp', [], function ($interpolateProvider) {
@@ -126,6 +128,17 @@
           console.error(data, status, headers, config);
         });
       };
+
+      $scope.requestContainerLogs = function(container){  
+        $http.get('containers/'+ container.Id +'/logs').success(function(data) {
+
+          alert("ok");
+
+        }).error(function(data, status, headers, config) {
+          console.error(data, status, headers, config);
+        });
+      };
+
 
       $scope.startContainer = function(container){  
         $http.get('containers/'+ container.Id + "/start").success(function(data) {
@@ -185,7 +198,7 @@
 
 
       //loaders
-      
+
       $http.get('containers').success(function(data) {
         $scope.containers = data;
       });

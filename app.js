@@ -90,7 +90,7 @@ app.get('/', auth, function(req, res) {
 app.get('/images', auth, function(req, res) {
   docker.listImages( {all: true}, function (err, images) {
     if (err) {
-      res.end(err);
+      res.status(400).end(JSON.stringify(err));
       return;
     }
     res.end(JSON.stringify(images));
@@ -99,11 +99,12 @@ app.get('/images', auth, function(req, res) {
 
 app.get('/images/pull', jsonParser, function(req, res) {
   var imageName = req.query.imageName;
-  console.log("pull image: " + imageName);
+
+  console.log("pull image: ", imageName);
 
   docker.pull(imageName, function (err, stream, test) {
     if (err) {
-      res.end(err);
+      res.status(400).end(JSON.stringify(err));
       return;
     }
 
@@ -133,7 +134,7 @@ app.delete('/images/:id', auth, function(req, res) {
 app.get('/containers', auth, function(req, res) {
   docker.listContainers( {all: true}, function (err, containers) {
     if (err) {
-      res.end(err);
+      res.status(400).end(JSON.stringify(err));
       return;
     }
     res.end(JSON.stringify(containers));
@@ -144,7 +145,7 @@ app.get('/containers', auth, function(req, res) {
 app.post('/containers', jsonParser, function(req, res) {
   docker.listContainers( {all: true}, function (err, containers) {
     if (err) {
-      res.end(err);
+      res.status(400).end(JSON.stringify(err));
       return;
     }
     
@@ -213,6 +214,43 @@ app.get('/containers/:id/inspect', auth, function(req, res) {
   });
 });
 
+app.get('/containers/:id/logs', auth, function(req, res) {
+  var c = docker.getContainer(req.params.id)
+  var opts = {
+    stderr: 1,
+    stdout: 1,
+    timestamps: 1,
+    follow: 1, 
+    tail: 10 
+  };
+
+  c.logs(opts, function (err, stream) {
+    if (err) {
+      res.status(400).end(JSON.stringify(err));
+      return;
+    }
+    
+    stream.setEncoding('utf8');
+    stream.on('data', function(chunk){
+
+      console.log(chunk.length);
+
+      if(chunk.length > 8){
+        var log = "["+req.params.id+"]" + chunk;
+        io.sockets.emit('news', log);        
+      }
+
+    });
+
+    stream.on('end', function(chunk){
+      console.log("steam ended");
+    });
+  
+    res.end("");
+  });
+});
+
+
 
 app.get('/containers/:id/pull', auth, function(req, res) {
 
@@ -251,11 +289,15 @@ app.get('/containers/:id/pull', auth, function(req, res) {
 // websockets
 
 io.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
-  
-  //sockets.push(socket);
+  console.log("[Websockets] user connected");
 
-  socket.on('message', function (msg) { 
+  socket.emit('news', { hello: 'world' });
+
+  socket.on('news', function (msg) { 
+    console.log("[WEBSOCKETS]", message);
+  });
+
+ socket.on('message', function (msg) { 
     console.log("[WEBSOCKETS]", message);
   });
 
@@ -285,7 +327,7 @@ app.post('/webhooks', jsonParser, function(req, res) {
   console.log(jsonData);
 
   console.log("[autopull] starting");
-  
+
   var tag = "latest"
   var repo = jsonData.repository.repo_name
   docker.pull( repo + ":" + tag, function (err, stream) {  
