@@ -1,48 +1,62 @@
 <div ng-controller="DraftsCtrl">
-  <form class="form">
-    <h2>Env</h2>
-    <div class="form-group">
-      <span ng-click="addEnv();" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i></span>
-      <div ng-repeat="env in current_draft.envs" class="form-inline">
-        <input type="text" ng-model="env.name" class="form-control" placeholder="name">:
-        <input type="text" ng-model="env.value" class="form-control" placeholder="value">
-        <span ng-click="removeEnv(env)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
+  <div class="form">
+
+    <div class="row">
+      <div class="col-md-3">
+        <div class="form-group">
+          <input type="text" ng-model="current_draft.image_name" class="form-control" placeholder="Container Name">
+        </div>
+      </div>
+
+      <div class="col-md-9">
+        <div class="form-group">
+          <input type="text" ng-model="current_draft.cmd" class="form-control" placeholder="Cmd">
+        </div>
       </div>
     </div>
 
-    <h2>Ports</h2>
-    <div class="form-group">
-      <span ng-click="addPort();" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i></span>
-      <div ng-repeat="port in current_draft.ports" class="form-inline">
-        <input type="number" ng-model="port.container" class="form-control"  placeholder="port in container">
-        <input type="number" ng-model="port.host" class="form-control"  placeholder="port in host">
-        <span ng-click="removePort(env)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
+    <div class="row">
+      <div class="col-md-4">
+        <h2>Env</h2>
+        <div class="form-group">
+          <span ng-click="addEnv();" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i></span>
+          <div ng-repeat="env in current_draft.envs" class="form-inline">
+            <input type="text" ng-model="env.name" class="form-control" placeholder="name">:
+            <input type="text" ng-model="env.value" class="form-control" placeholder="value">
+            <span ng-click="removeEnv(env)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <h2>Ports</h2>
+        <div class="form-group">
+          <span ng-click="addPort();" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i></span>
+          <div ng-repeat="port in current_draft.ports" class="form-inline">
+            <input type="number" ng-model="port.container" class="form-control"  placeholder="port in container">
+            <input type="number" ng-model="port.host" class="form-control"  placeholder="port in host">
+            <span ng-click="removePort(env)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <h2>Links</h2>
+        <div class="form-group">
+          <span ng-click="addLink();" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i></span>
+          <div ng-repeat="link in current_draft.links" class="form-inline">
+            <input type="text" ng-model="link.name" class="form-control" placeholder="name">
+            <input type="text" ng-model="link.name_container" class="form-control" placeholder="name in container">
+            <span ng-click="removeLink(link)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
+          </div>
+        </div>
       </div>
     </div>
-
-    <h2>Links</h2>
-    <div class="form-group">
-      <span ng-click="addLink();" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i></span>
-      <div ng-repeat="link in current_draft.links" class="form-inline">
-        <input type="text" ng-model="link.name" class="form-control" placeholder="name">
-        <input type="text" ng-model="link.name_container" class="form-control" placeholder="name in container">
-        <span ng-click="removeLink(link)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
-      </div>
-    </div>
-
-
-
-    <div class="form-group">
-      <input type="text" ng-model="current_draft.image_name" class="form-control" placeholder="Container Name">
-    </div>
-
-    <div class="form-group">
-      <input type="text" ng-model="current_draft.cmd" class="form-control" placeholder="Cmd">
-    </div>
-
 
     <button ng-click="saveDraft();" class="btn btn-warning">save draft</button>
-  </form>
+  </div>
+
+  <hr>
 
   <table class="table table-striped">
     <tr>
