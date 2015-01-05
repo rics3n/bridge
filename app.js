@@ -345,7 +345,7 @@ app.get('/api/drafts/:id/run', auth, function(req, res) {
 
     var cmd = draft.cmd.split(" ")
     console.log(cmd);
-    
+
     docker.run(draft.image_name, cmd , [process.stdout, process.stderr], {Tty:false},  function (err, data, container) {
       if (err) {
         res.status(404).end(JSON.stringify(err));
@@ -374,8 +374,6 @@ app.delete('/api/drafts/:id', auth, function(req, res) {
 
 io.on('connection', function (socket) {
   console.log("[Websockets] user connected");
-
-  socket.emit('news', { hello: 'world' });
 
   socket.on('news', function (msg) { 
     console.log("[WEBSOCKETS]", message);
