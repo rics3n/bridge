@@ -4,18 +4,18 @@
 
 ![Bridge](http://justinsomnia.org/images/cap-cleveland-bridge-view-moon-lit-big.jpg)
 
-
 Why `bridge` is different from other docker mangement tools.
 
 * **simple** - `bridge` aims to be a very simple convenience wrapper of the docker api for the web
 * **single node** - `bridge` is made to manage a single docker daemon, not cluster (this might come in the future)
-* **integrated** - `bridge` integrates with services like the docker registry, slack, email etc too 
+* **integrated** - `bridge` integrates with services like the docker registry.
 * **batteries included** - `bridge` targets users that have common docker tasks in ther minds: pull, restart, schedule a docker run etc.
 
 ## Features in development:
 
-* **container management** - pull & run containers with all required parameters like volumes, ports, links etc. this is 
-* **security** - single user via HTTTP basic auth. (Note: you should always use SSL for you server. cloudflare offers free ssl!)
+* **container management** - pull & run containers with all required parameters like volumes, ports, links etc.
+* **registry connection** - auto pull & deploy container after registry push.
+* **security** - single user via HTTP basic auth. (Note: you should always use SSL for you server. cloudflare offers free ssl!)
 
 ## Features that will be included later
 
