@@ -39,17 +39,36 @@ bridgeApp.controller('DraftsCtrl', function ($scope, $routeParams, $http) {
     $scope.current_draft.ports.push({container: null, host: null});
   };
 
+  $scope.setDraft = function(draft) {
+    $scope.current_draft = draft;
+  };
+
+  $scope.resetDraft = function(){
+    $scope.current_draft = _.extend($scope.draft_default, {});
+  };
+
   $scope.saveDraft = function(){
     var data = $scope.current_draft;
 
-    $http.post('api/drafts', data).success(function(draft) {
-      
-      $scope.current_draft = _.extend($scope.draft_default, {});
-      $scope.drafts.push(draft);
+    if(data._id){
 
-    }).error(function(data, status, headers, config) {
-      console.error(data, status, headers, config);
-    });
+      $http.put('api/drafts/' + data._id, data).success(function(draft) {
+        console.log("updated:", draft);
+      }).error(function(data, status, headers, config) {
+        console.error(data, status, headers, config);
+      });
+
+    }else{
+      $http.post('api/drafts', data).success(function(draft) {
+      
+        $scope.current_draft = _.extend($scope.draft_default, {});
+        $scope.drafts.push(draft);
+
+      }).error(function(data, status, headers, config) {
+        console.error(data, status, headers, config);
+      });
+    }
+
   };
 
   $scope.removeDraft = function(draft){  
