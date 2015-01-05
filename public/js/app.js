@@ -130,6 +130,22 @@ bridgeApp.controller('ImagesCtrl', function ($scope, $routeParams, $http) {
     };
   }
 
+
+  $scope.showImage = function(image){
+    $scope.selected_image = image;
+
+    $http.get('api/images/'+image.Id+'/inspect').success(function(image) {
+        
+      $scope.selected_image = image;
+
+    }).error(function(data, status, headers, config) {
+      console.error(data, status, headers, config);
+      $scope.pulling = false;
+    });    
+
+  }
+
+
 });
 
 bridgeApp.controller('ContainersCtrl', function ($scope, $routeParams, $http) {

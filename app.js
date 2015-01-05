@@ -147,6 +147,16 @@ app.get('/api/images/pull', jsonParser, function(req, res) {
   });
 });
 
+app.get('/api/images/:id/inspect', jsonParser, function(req, res) {
+  docker.getImage(req.params.id).inspect(function(err, data) {
+    if (err) {
+      res.status(400).end(JSON.stringify(err));
+      return;
+    }
+    res.status(200).end(JSON.stringify(data));
+  });
+});
+
 app.delete('/api/images/:id', auth, function(req, res) {
   docker.getImage(req.params.id).remove(function(err, c) {
     if (err) {
@@ -332,6 +342,23 @@ app.post('/api/drafts', jsonParser, function(req, res) {
     }
 
     res.status(201).end(JSON.stringify(obj[0]));
+  });
+
+});
+
+
+app.put('/api/drafts/:id', jsonParser, function(req, res) {
+  var data = req.body
+
+  req.db.collection('drafts').update( {"_id": new ObjectID(req.params.id) } , { "$set": data }, function(err, obj){
+
+    if (err) {
+      console.log(err, obj);
+      res.status(400).end(JSON.stringify(err));
+      return;
+    }
+
+    res.status(200).end(JSON.stringify(obj[0]));
   });
 
 });

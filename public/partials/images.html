@@ -10,14 +10,67 @@
     </span>
   </form>
 
-  <table class="table table-striped">
-    <tr ng-repeat="image in images | filter:checkImage()">
-      <td>[[image.RepoTags]]</td>
-      <td>[[image.Id]]</td>
-      <td>
-        <span ng-click="removeImage(image)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
-        <span ng-click="pullImage(image.RepoTags[0])" class="btn btn-sm btn-primary"><i class="fa fa-download"></i></span>
-      </td>
-    </tr>
-  </table>
+  <div class="row">
+    <div class="col-md-3">
+
+      <table class="table table-striped table-hover">
+        <tr ng-repeat="image in images | filter:checkImage()" ng-click="showImage(image);">
+          <td>[[image.RepoTags]]</td>
+        </tr>
+      </table>
+    
+    </div>
+    <div class="col-md-9">
+      
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          [[selected_image.Id]]
+        </div>
+        <div class="panel-body">
+          Created:[[selected_image.Created]]
+          ParentId:[[selected_image.ParentId]]
+          Size:[[selected_image.Size]]
+          VirtualSize:[[selected_image.VirtualSize]]
+
+
+          <pre>[[selected_image.Config]]</pre>
+
+
+          <hr>
+          <h1>cmd</h1>  
+          <pre>[[selected_image.Config.Cmd]]</pre>
+          
+
+          <h1>envs</h1>  
+          <ul>
+            <li ng-repeat="envs in selected_image.Config.Env">
+              [[envs]]
+            </li>
+          </ul>
+
+          <h1>ports</h1>
+          <ul>
+            <li ng-repeat="(from, to) in selected_image.Config.ExposedPorts">
+              [[from]]:[[to]]
+            </li>
+          </ul>
+
+          
+          <h1>volumes</h1>
+          <ul>
+            <li ng-repeat="(from, to) in selected_image.Config.Volumes">
+              [[from]]:[[to]]
+            </li>
+          </ul>
+
+
+          [[selected_image.Config.Volumes]]
+
+          <span ng-click="removeImage(image)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
+          <span ng-click="pullImage(image.RepoTags[0])" class="btn btn-sm btn-primary"><i class="fa fa-download"></i></span>
+        </div>
+      </div>
+
+    </div>
+
 </div>
