@@ -104,7 +104,7 @@ bridgeApp.controller('ImagesCtrl', function ($scope, $routeParams, $http) {
   $scope.pullImage = function(imageName){  
     $scope.pulling = true;
     var imageName = encodeURIComponent(imageName);
-    $http.get('images/pull?imageName='+imageName).success(function(image) {
+    $http.get('api/images/pull?imageName='+imageName).success(function(image) {
       alert("image pulled");
       $scope.pulling = false;
     }).error(function(data, status, headers, config) {
