@@ -14,7 +14,7 @@ bridgeApp.controller('DraftsCtrl', function ($scope, $routeParams, $http) {
   $scope.draft_default = {
     container_name: null,
     cmd: null,
-    deamon: true,
+    rm: true,
     envs: [],
     links: [],
     ports: [],
@@ -69,6 +69,13 @@ bridgeApp.controller('DraftsCtrl', function ($scope, $routeParams, $http) {
       });
     }
 
+  };
+
+
+  $scope.duplicateDraft = function(draft){  
+    var duplicate = _.extend(draft, {});
+    delete duplicate['_id'];
+    $scope.current_draft = duplicate
   };
 
   $scope.removeDraft = function(draft){  

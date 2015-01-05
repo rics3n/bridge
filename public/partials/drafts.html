@@ -18,7 +18,7 @@
       <td>
         <span ng-click="runDraft(draft)" class="btn btn-sm btn-primary"><i class="fa fa-play"></i></span>
         <span ng-click="removeDraft(draft)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
-        <span ng-click="duplicate(draft)" class="btn btn-sm btn-danger"><i class="fa fa-files-o"></i></span>
+        <span ng-click="duplicateDraft(draft)" class="btn btn-sm btn-danger"><i class="fa fa-files-o"></i></span>
       </td>
     </tr>
   </table>
@@ -26,7 +26,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     <div class="pull-right">
-      <span class="btn btn-primary" ng-click="resetDraft();">reset</span>
+      <span class="btn btn-primary btn-xs" ng-click="resetDraft();">reset</span>
     </div>
     Edit Draft
   </div>
@@ -64,8 +64,8 @@
           <div class="form-group">
             <span ng-click="addPort();" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i></span>
             <div ng-repeat="port in current_draft.ports" class="form-inline">
-              <input type="number" ng-model="port.container" class="form-control"  placeholder="port in container">
-              <input type="number" ng-model="port.host" class="form-control"  placeholder="port in host">
+              <input type="number" ng-model="port.container" class="form-control"  placeholder="port exposed in container">
+              <input type="number" ng-model="port.host" class="form-control"  placeholder="port of host">
               <span ng-click="removePort(env)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
             </div>
           </div>
@@ -82,6 +82,12 @@
             </div>
           </div>
         </div>
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" ng-model="current_draft.rm"></input>
+          Remove container after run
+        </label>
       </div>
 
       <button ng-click="saveDraft();" class="btn btn-warning">save draft</button>

@@ -349,6 +349,8 @@ app.post('/api/drafts', jsonParser, function(req, res) {
 
 app.put('/api/drafts/:id', jsonParser, function(req, res) {
   var data = req.body
+  
+  delete data["_id"];
 
   req.db.collection('drafts').update( {"_id": new ObjectID(req.params.id) } , { "$set": data }, function(err, obj){
 
@@ -380,7 +382,21 @@ app.get('/api/drafts/:id/run', auth, function(req, res) {
       }
       console.log(data);
       
-      res.status(204).end();
+
+      if(draft.rm === true){
+        container.remove(function(err, c) {
+          if (err) {
+            res.end(JSON.stringify(err));
+            return;
+          }
+          res.sendStatus(204);
+          res.end("removed");
+        });
+
+      }else{
+        res.status(204).end();
+      }
+
     });
 
   });

@@ -55,16 +55,13 @@
             </li>
           </ul>
 
-          
+
           <h1>volumes</h1>
           <ul>
             <li ng-repeat="(from, to) in selected_image.Config.Volumes">
               [[from]]:[[to]]
             </li>
           </ul>
-
-
-          [[selected_image.Config.Volumes]]
 
           <span ng-click="removeImage(image)" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></span>
           <span ng-click="pullImage(image.RepoTags[0])" class="btn btn-sm btn-primary"><i class="fa fa-download"></i></span>
