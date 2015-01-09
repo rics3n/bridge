@@ -57,7 +57,7 @@ var auth = function (req, res, next) {
 };
 
 var getDocker = function() {
-  if(process.env.DOCKER_CERT_PATH){ 
+  if(process.env.DOCKER_CERT_PATH){
 
     var dockerHost = process.env.DOCKER_HOST
     var dockerCertPath = process.env.DOCKER_CERT_PATH
@@ -85,7 +85,7 @@ docker.ping(function(err,pong) {
     console.error("[DOCKER] ping:" + err);
     process.exit(1);
   }else{
-    console.log("[DOCKER] ping:" + pong);    
+    console.log("[DOCKER] ping:" + pong);
   }
 });
 
@@ -186,9 +186,9 @@ app.post('/api/containers', jsonParser, function(req, res) {
       res.status(400).end(JSON.stringify(err));
       return;
     }
-    
+
     var data = req.body
-    
+
     var createOptions = {};
     var startOptions = {};
 
@@ -258,8 +258,8 @@ app.get('/api/containers/:id/logs', auth, function(req, res) {
     stderr: 1,
     stdout: 1,
     timestamps: 1,
-    follow: 1, 
-    tail: 10 
+    follow: 1,
+    tail: 10
   };
 
   c.logs(opts, function (err, stream) {
@@ -267,7 +267,7 @@ app.get('/api/containers/:id/logs', auth, function(req, res) {
       res.status(400).end(JSON.stringify(err));
       return;
     }
-    
+
     stream.setEncoding('utf8');
     stream.on('data', function(chunk){
 
@@ -275,7 +275,7 @@ app.get('/api/containers/:id/logs', auth, function(req, res) {
 
       if(chunk.length > 8){
         var log = "["+req.params.id+"]" + chunk;
-        io.sockets.emit('news', log);        
+        io.sockets.emit('news', log);
       }
 
     });
@@ -283,7 +283,7 @@ app.get('/api/containers/:id/logs', auth, function(req, res) {
     stream.on('end', function(chunk){
       console.log("steam ended");
     });
-  
+
     res.end("");
   });
 });
@@ -315,7 +315,7 @@ app.get('/api/containers/:id/pull', auth, function(req, res) {
 
         stream.on('end', function() {
           res.end("found");
-        });            
+        });
       }
 
     });
@@ -349,7 +349,7 @@ app.post('/api/drafts', jsonParser, function(req, res) {
 
 app.put('/api/drafts/:id', jsonParser, function(req, res) {
   var data = req.body
-  
+
   delete data["_id"];
 
   req.db.collection('drafts').update( {"_id": new ObjectID(req.params.id) } , { "$set": data }, function(err, obj){
@@ -381,7 +381,7 @@ app.get('/api/drafts/:id/run', auth, function(req, res) {
         return;
       }
       console.log(data);
-      
+
 
       if(draft.rm === true){
         container.remove(function(err, c) {
@@ -418,11 +418,11 @@ app.delete('/api/drafts/:id', auth, function(req, res) {
 io.on('connection', function (socket) {
   console.log("[Websockets] user connected");
 
-  socket.on('news', function (msg) { 
+  socket.on('news', function (msg) {
     console.log("[WEBSOCKETS]", message);
   });
 
- socket.on('message', function (msg) { 
+ socket.on('message', function (msg) {
     console.log("[WEBSOCKETS]", message);
   });
 
@@ -431,14 +431,14 @@ io.on('connection', function (socket) {
   });
 });
 
-// RECEIVE WEBHOOKS 
+// RECEIVE WEBHOOKS
 
 app.post('/api/webhooks', jsonParser, function(req, res) {
-  if (!req.body) 
+  if (!req.body)
     return res.sendStatus(400);
 
   var jsonData = req.body;
-  
+
   var callbackUrl = jsonData.callback_url;
   var callbackData = { state : 'Success' } ;
 
@@ -455,7 +455,7 @@ app.post('/api/webhooks', jsonParser, function(req, res) {
 
   var tag = "latest"
   var repo = jsonData.repository.repo_name
-  docker.pull( repo + ":" + tag, function (err, stream) {  
+  docker.pull( repo + ":" + tag, function (err, stream) {
 
     if (err) {
       res.end(JSON.stringify(err));
@@ -469,7 +469,7 @@ app.post('/api/webhooks', jsonParser, function(req, res) {
 
       stream.on('end', function() {
         console.log('[autopull]['+repo+'] image pulled')
-      });            
+      });
     }
 
   });
@@ -489,7 +489,7 @@ app.post('/api/webhooks', jsonParser, function(req, res) {
 
     });
   }
-  
+
   res.end("OK");
 });
 
