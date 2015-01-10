@@ -1,7 +1,6 @@
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
-var io = require('socket.io')(server);
 var basicAuth = require('basic-auth');
 var request = require('request');
 var swig = require('swig');
@@ -9,13 +8,13 @@ var bodyParser = require('body-parser')
 var fs = require('fs');
 var Docker = require('dockerode');
 var logger = require('morgan');
-
+var WebSocketServer = require("ws").Server;
 var mongo = require('mongoskin');
 var ObjectID = require('mongodb').ObjectID;
 
 var db = mongo.db("mongodb://192.168.59.103:27017/bridge", {native_parser:true});
 
-var jsonParser = bodyParser.json();
+var jsonParser = bodyParser.json
 
 app.use(express.static(__dirname + '/public'));
 app.use(logger('tiny'));
@@ -252,39 +251,51 @@ app.get('/api/containers/:id/inspect', auth, function(req, res) {
   });
 });
 
-app.get('/api/containers/:id/logs', auth, function(req, res) {
-  var c = docker.getContainer(req.params.id)
-  var opts = {
-    stderr: 1,
-    stdout: 1,
-    timestamps: 1,
-    follow: 1,
-    tail: 10
-  };
+var wss = new WebSocketServer({server: server, path: "/api/containers/logs"});
+wss.on('connection', function(ws) {
+  var path = ws.upgradeReq.url;
+  var containerId = '';
+  if(path.indexOf('?containerId=') > -1) {
+    var start = path.indexOf('?containerId=');
+    containerId = path.substring(start+13, path.length);
+    console.log('start sending docker logs for container id: ' + containerId);
 
-  c.logs(opts, function (err, stream) {
-    if (err) {
-      res.status(400).end(JSON.stringify(err));
-      return;
-    }
+    var c = docker.getContainer(containerId);
+    var opts = {
+      stderr: 1,
+      stdout: 1,
+      timestamps: 1,
+      follow: 1
+      //tail: 100
+    };
 
-    stream.setEncoding('utf8');
-    stream.on('data', function(chunk){
-
-      //console.log(chunk.length);
-
-      if(chunk.length > 8){
-        var log = "["+req.params.id+"]" + chunk;
-        io.sockets.emit('news', log);
+    c.logs(opts, function (err, stream) {
+      if (err) {
+        //res.status(400).end(JSON.stringify(err));
+        console.log(err);
+        return;
       }
 
+      stream.setEncoding('utf8');
+      stream.on('data', function(chunk){
+
+        //console.log(chunk.length);
+
+        if(chunk.length > 8){
+          ws.send(chunk);
+        }
+
+      });
+
+      stream.on('finish', function(chunk){
+        console.log("steam ended");
+      });
     });
 
-    stream.on('end', function(chunk){
-      console.log("steam ended");
-    });
+  }
 
-    res.end("");
+  ws.on('close', function() {
+    console.log('stopping client interval');
   });
 });
 
@@ -410,24 +421,6 @@ app.delete('/api/drafts/:id', auth, function(req, res) {
       return;
     }
     res.status(204).end();
-  });
-});
-
-// websockets
-
-io.on('connection', function (socket) {
-  console.log("[Websockets] user connected");
-
-  socket.on('news', function (msg) {
-    console.log("[WEBSOCKETS]", message);
-  });
-
- socket.on('message', function (msg) {
-    console.log("[WEBSOCKETS]", message);
-  });
-
-  socket.on('disconnect', function () {
-    io.sockets.emit('user disconnected');
   });
 });
 

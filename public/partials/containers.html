@@ -2,13 +2,13 @@
   <form class="form-inline">
     <div class="form-group">
       <select ng-model="selected_image" class="form-control" ng-options="image.RepoTags for image in images | filter:checkImage()">
-      </select> 
+      </select>
     </div>
 
     <div class="form-group">
       <input type="text" ng-model="container_name" class="form-control" id="name" placeholder="Container Name">
     </div>
-    
+
     <div class="form-group">
       <input type="text" ng-model="cmd" class="form-control" id="name" placeholder="Cmd">
     </div>
@@ -17,7 +17,7 @@
   </form>
 
   <table class="table table-striped">
-    
+
     <tr>
       <th>Id</th>
       <th>Status</th>
@@ -49,4 +49,6 @@
   </table>
 
   [[inspected_container]]
+
+  <pre>[[logOutput]]</pre>
 </div>

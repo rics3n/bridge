@@ -60,7 +60,7 @@ bridgeApp.controller('DraftsCtrl', function ($scope, $routeParams, $http) {
 
     }else{
       $http.post('api/drafts', data).success(function(draft) {
-      
+
         $scope.current_draft = _.extend($scope.draft_default, {});
         $scope.drafts.push(draft);
 
@@ -72,13 +72,13 @@ bridgeApp.controller('DraftsCtrl', function ($scope, $routeParams, $http) {
   };
 
 
-  $scope.duplicateDraft = function(draft){  
+  $scope.duplicateDraft = function(draft){
     var duplicate = _.extend(draft, {});
     delete duplicate['_id'];
     $scope.current_draft = duplicate
   };
 
-  $scope.removeDraft = function(draft){  
+  $scope.removeDraft = function(draft){
     $http.delete('api/drafts/'+ draft._id).success(function(data) {
       $scope.drafts = $scope.drafts.filter(function(c) {
         return c._id !== draft._id;
@@ -108,7 +108,7 @@ bridgeApp.controller('ImagesCtrl', function ($scope, $routeParams, $http) {
     $scope.images = data;
   });
   // IMAGE STUFF
-  $scope.pullImage = function(imageName){  
+  $scope.pullImage = function(imageName){
     $scope.pulling = true;
     var imageName = encodeURIComponent(imageName);
     $http.get('api/images/pull?imageName='+imageName).success(function(image) {
@@ -120,7 +120,7 @@ bridgeApp.controller('ImagesCtrl', function ($scope, $routeParams, $http) {
     });
   };
 
-  $scope.removeImage = function(image){  
+  $scope.removeImage = function(image){
     $http.delete('api/images/'+ image.Id).success(function(data) {
       $scope.images = $scope.images.filter(function(c) {
         return c.Id !== image.Id;
@@ -142,25 +142,30 @@ bridgeApp.controller('ImagesCtrl', function ($scope, $routeParams, $http) {
     $scope.selected_image = image;
 
     $http.get('api/images/'+image.Id+'/inspect').success(function(image) {
-        
+
       $scope.selected_image = image;
 
     }).error(function(data, status, headers, config) {
       console.error(data, status, headers, config);
       $scope.pulling = false;
-    });    
+    });
 
   }
 
 
 });
 
-bridgeApp.controller('ContainersCtrl', function ($scope, $routeParams, $http) {
+bridgeApp.controller('ContainersCtrl', function ($scope, $routeParams, $http, $window, $document, stdout) {
 
   //loader data
   $http.get('api/containers').success(function(data) {
     $scope.containers = data;
   });
+
+  $scope.options = {
+    following: true
+  };
+
    // CONTAINER STUFF
   $scope.runContainer = function(imageName, containerName){
     var data = { image_name :imageName, container_name:containerName}
@@ -171,7 +176,7 @@ bridgeApp.controller('ContainersCtrl', function ($scope, $routeParams, $http) {
     });
   };
 
-  $scope.inspectContainer = function(container){  
+  $scope.inspectContainer = function(container){
     $http.get('api/containers/'+ container.Id +'/inspect').success(function(data) {
       $scope.inspected_container = data;
     }).error(function(data, status, headers, config) {
@@ -179,17 +184,24 @@ bridgeApp.controller('ContainersCtrl', function ($scope, $routeParams, $http) {
     });
   };
 
-  $scope.requestContainerLogs = function(container){  
-    $http.get('api/containers/'+ container.Id +'/logs').success(function(data) {
+  $scope.requestContainerLogs = function(container){
+    $scope.logOutput = '';
+    stdout.subscribe('/api/containers/logs?containerId=' + container.Id, function (out) {
+      // Append new output to console
+      console.log(out);
 
-      alert("ok");
+      $scope.$apply(function() {
+        $scope.logOutput = $scope.logOutput.concat(out);
+      });
 
-    }).error(function(data, status, headers, config) {
-      console.error(data, status, headers, config);
+      // Scroll if following
+      if ($scope.options.following) {
+        $window.scrollTo(0, $document[0].body.scrollHeight);
+      }
     });
   };
 
-  $scope.startContainer = function(container){  
+  $scope.startContainer = function(container){
     $http.get('api/containers/'+ container.Id + "/start").success(function(data) {
       alert("started");
     }).error(function(data, status, headers, config) {
@@ -197,7 +209,7 @@ bridgeApp.controller('ContainersCtrl', function ($scope, $routeParams, $http) {
     });
   };
 
-  $scope.stopContainer = function(container){  
+  $scope.stopContainer = function(container){
     $http.get('api/containers/'+ container.Id + "/stop").success(function(data) {
       alert("stopped");
     }).error(function(data, status, headers, config) {
@@ -205,7 +217,7 @@ bridgeApp.controller('ContainersCtrl', function ($scope, $routeParams, $http) {
     });
   };
 
-  $scope.removeContainer = function(container){  
+  $scope.removeContainer = function(container){
     $http.delete('api/containers/'+ container.Id).success(function(data) {
       $scope.containers = $scope.containers.filter(function(c) {
         return c.Id !== container.Id;
@@ -229,7 +241,7 @@ bridgeApp.config(['$routeProvider', '$locationProvider',
       when('/images', {
         templateUrl: 'partials/images.html',
         controller: 'ImagesCtrl'
-      }).   
+      }).
       when('/drafts', {
         templateUrl: 'partials/drafts.html',
         controller: 'DraftsCtrl'
@@ -238,4 +250,3 @@ bridgeApp.config(['$routeProvider', '$locationProvider',
         redirectTo: '/containers'
       });
 }]);
-

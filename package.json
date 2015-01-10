@@ -6,16 +6,17 @@
     "url": "https://github.com/magegu/bridge.git"
   },
   "dependencies": {
-    "express": "^4.10.6",
-    "body-parser": "1.x",
-    "socket.io": "1.x",
     "basic-auth": "1.x",
-    "swig": "1.4.x",
-    "morgan": "1.x",
+    "body-parser": "1.x",
     "dockerode": "2.x",
-    "mongoskin": "1.4.x",
+    "express": "^4.10.6",
     "mongodb": "~2.0",
-    "request": "2.x"
+    "mongoskin": "1.4.x",
+    "morgan": "1.x",
+    "request": "2.x",
+    "socket.io": "1.x",
+    "swig": "1.4.x",
+    "ws": "^0.6.5"
   },
   "scripts": {
     "start": "node app.js",
